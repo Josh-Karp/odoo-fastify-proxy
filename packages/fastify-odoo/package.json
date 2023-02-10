@@ -1,0 +1,40 @@
+{
+  "name": "@fastify/odoo",
+  "version": "1.0.0",
+  "description": "Fastify Odoo connection plugin, with which you can share the same Odoo client across your server.",
+  "main": "index.js",
+  "scripts": {
+    "coverage": "npm run unit -- --cov --coverage-report=html",
+    "lint": "standard",
+    "lint:fix": "standard --fix",
+    "test": "npm run test:unit",
+    "test:unit": "tap"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Josh-Karp/fastify-odoo.git"
+  },
+  "keywords": [
+    "fastify",
+    "odoo",
+    "database",
+    "connection"
+  ],
+  "author": "Joshua Karp <joshua@sitelab.co.za",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Josh-Karp/fastify-odoo/issues"
+  },
+  "homepage": "https://github.com/Josh-Karp/fastify-odoo#readme",
+  "devDependencies": {
+    "fastify": "^4.0.0",
+    "standard": "^17.0.0",
+    "tap": "^16.1.0"
+  },
+  "dependencies": {
+    "fastify-plugin": "^4.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

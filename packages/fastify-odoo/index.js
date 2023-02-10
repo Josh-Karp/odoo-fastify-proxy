@@ -1,7 +1,8 @@
 "use strict";
 
 const fp = require("fastify-plugin");
-const OdooClient = require("../odoo");
+const OdooClient = require("../node-odoo");
+const extractUrlTokens = require("./helpers/extractUrlTokens");
 
 async function fastifyOdoo(fastify, options) {
   options = Object.assign(
@@ -16,7 +17,7 @@ async function fastifyOdoo(fastify, options) {
     throw Error("`url` parameter is mandatory if no client is provided");
   }
 
-  const { host, port, protocol } = _extractUrlTokens(url);
+  const { host, port, protocol } = extractUrlTokens(url);
   const odooConnector = new OdooClient(db, username, password, host, port, protocol);
   const client = await odooConnector.connect();
 
@@ -24,18 +25,6 @@ async function fastifyOdoo(fastify, options) {
     forceClose,
     db: db,
   });
-}
-
-function _extractUrlTokens(url) {
-  const match = url.match(/(https?):\/\/([^:]+):(\d+)/);
-  if (!match) {
-    return null;
-  }
-  return {
-    protocol: match[1],
-    host: match[2],
-    port: match[3],
-  };
 }
 
 function decorateInstance(fastify, client, options) {

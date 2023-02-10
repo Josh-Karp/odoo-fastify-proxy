@@ -8,12 +8,12 @@ module.exports = async function (fastify, opts) {
     routePrefix: "/docs",
     swagger: {
       info: {
-        title: "My FirstAPP Documentation",
-        description: "My FirstApp Backend Documentation description",
+        title: "Odoo API proxy server built with Fastify",
+        description: "Odoo API proxy server built with Fastify",
         version: "0.1.0",
         termsOfService: "",
         contact: {
-          name: "Taskuite",
+          name: "Joshua Karp",
           url: "https://www.johndoe.com",
           email: "john.doe@email.com",
         },

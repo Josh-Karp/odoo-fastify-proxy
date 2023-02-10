@@ -1,14 +1,20 @@
 "use strict";
 
 const axios = require("axios");
-const OdooClient = require("./client");
+const Client = require("./client");
 
 class Odoo {
-  constructor(db, username, password, host, port, protocol) {
-    this.db = db;
-    this.username = username;
-    this.password = password;
-    this.baseURL = `${protocol}://${host}:${port}`;
+  constructor(config) {
+    this.config = config || {};
+    this.db = config.db;
+    this.username = config.username;
+    this.password = config.password;
+    this.host = config.host;
+    this.port = config.port || undefined;
+    this.protocol = config.protocol || "http";
+    this.baseURL = config.port
+      ? `${config.protocol}://${config.host}:${config.port}`
+      : `${config.protocol}://${config.host}`;
   }
 
   connect = async () => {
@@ -44,13 +50,14 @@ class Odoo {
         .split(";")[0]
         .split("=")[1];
 
-      return new OdooClient({
+      return new Client({
+        name: this.db,
         baseURL: this.baseURL,
         sessionId: OdooSessionId,
       });
     } catch (err) {
-      console.error(err);
-      return Promise.reject(err);
+      // console.error(err);
+      return Promise.reject({ message: err });
     }
   };
 }

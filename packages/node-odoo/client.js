@@ -1,76 +1,81 @@
 "use strict";
 
 const axios = require("axios");
+const { v4: uuidv4 } = require("uuid");
 
-class OdooClient {
+class Client {
   constructor(options) {
-    this.options = options;
+    this.options = options || {};
+    this.objectId = uuidv4();
+    this.name = options.name;
   }
 
   read = (model, params) => {
-    return this._request("/web/dataset/call_kw", {
+    return this.#request("/web/dataset/call_kw", {
       model: model,
       method: "read",
       args: [params.ids],
       kwargs: {
         fields: params.fields,
+        context: this.options?.context,
       },
     });
   };
 
   write = (model, id, params) => {
     if (id) {
-      return this._request("/web/dataset/call_kw", {
+      return this.#request("/web/dataset/call_kw", {
         model: model,
         method: "write",
         args: [[id], params],
         kwargs: {
-          context: this.opts.context,
+          context: this.options?.context,
         },
       });
     }
   };
 
   create = (model, params) => {
-    return this._request("/web/dataset/call_kw", {
+    return this.#request("/web/dataset/call_kw", {
       model: model,
       method: "create",
       args: [params],
       kwargs: {
-        context: this.opts.context,
+        context: this.options?.context,
       },
     });
   };
 
   delete = (model, id) => {
-    return this._request("/web/dataset/call_kw", {
+    return this.#request("/web/dataset/call_kw", {
       model: model,
       method: "unlink",
       args: [[id]],
       kwargs: {
-        context: this.options.context,
+        context: this.options?.context,
       },
     });
   };
 
   search = (model, params) => {
-    return this._request("/web/dataset/call_kw", {
+    return this.#request("/web/dataset/call_kw", {
       model: model,
       method: "search",
       args: [params.domain],
       kwargs: {
-        context: this.options.context,
+        context: this.options?.context,
+        limit: params.limit,
       },
     });
   };
 
   search_read = (model, params) => {
-    return this._request("/web/dataset/call_kw", {
+    return this.#request("/web/dataset/call_kw", {
       model: model,
       method: "search_read",
       args: [],
       kwargs: {
-        context: this.options.context,
+        context: this.options?.context,
         domain: params.domain,
         offset: params.offset,
         limit: params.limit,
@@ -80,16 +85,20 @@ class OdooClient {
     });
   };
 
-  search_by_id = (model, id) => {
-    const params = { domain: [["id", "=", id]], limit: 1 };
-    return this.search_read(model, params);
+  search_by_id = (model, id, params) => {
+    const constructed_params = {
+      domain: [["id", "=", id]],
+      limit: 1,
+      ...params,
+    };
+    return this.search_read(model, constructed_params);
   };
 
-  call = (endpoint, params) => {
-    return this._request(endpoint, params);
+  rpc_call = (endpoint, params) => {
+    return this.#request(endpoint, params);
   };
 
-  _request = async (path, params) => {
+  #request = async (path, params) => {
     params = params || {};
 
     const options = {
@@ -102,7 +111,7 @@ class OdooClient {
       data: JSON.stringify({
         jsonrpc: "2.0",
         id: new Date().getUTCMilliseconds(),
-        method: "call",
+        method: "rpc_call",
         params: params,
       }),
       withCredentials: false,
@@ -114,7 +123,7 @@ class OdooClient {
       const response = await axios(options);
 
       if (response.data.error) {
-        this.context = response.data.error.data;
+        console.error(err);
         return Promise.reject(response.data.error);
       }
 
@@ -126,4 +135,4 @@ class OdooClient {
   };
 }
 
-module.exports = OdooClient;
+module.exports = Client;
