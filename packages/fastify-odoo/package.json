@@ -1,6 +1,6 @@
 {
   "name": "@fastify/odoo",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Fastify Odoo connection plugin, with which you can share the same Odoo client across your server.",
   "main": "index.js",
   "scripts": {
