@@ -3,13 +3,29 @@
 const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
 
+/**
+ * A client for making JSON-RPC requests to an Odoo server.
+ *
+ * @class
+ * @param {Object} options Odoo client configuration options.
+ * @returns {Client}
+ */
 class Client {
-  constructor({ db, ...options}) {
+  constructor({ db, ...options }) {
     this.options = options || {};
     this.objectId = new ObjectId();
-    this.db = db
+    this.db = db;
   }
 
+  /**
+   * Retrieves a record from an Odoo model.
+   *
+   * @param {string} model The name of the Odoo model to retrieve.
+   * @param {Object} params The parameters to pass with the request.
+   * @param {number[]} params.ids An array of record IDs to retrieve.
+   * @param {string[]} params.fields An array of field names to retrieve.
+   * @returns {Promise<Object[]>} Promise that resolves with an array of record objects.
+   */
   read = (model, params) => {
     return this.#request("/web/dataset/call_kw", {
       model: model,
@@ -22,6 +38,14 @@ class Client {
     });
   };
 
+  /**
+   * Writes to a record in a model with the given id and parameters.
+   *
+   * @param {string} model The name of the Odoo model to write the record in.
+   * @param {number} id The ID of the record to update.
+   * @param {object} params The new values to set in the record.
+   * @returns {Promise} Promise that resolves to the result of the write request.
+   */
   write = (model, id, params) => {
     if (id) {
       return this.#request("/web/dataset/call_kw", {
@@ -35,6 +59,13 @@ class Client {
     }
   };
 
+  /**
+   * Creates a new record in the specified model with the given parameters.
+   *
+   * @param {string} model The name of the Odoo model to create the new record in.
+   * @param {object} params The values for the fields of the new record.
+   * @returns {Promise} Promise that resolves to the ID of the newly created record.
+   */
   create = (model, params) => {
     return this.#request("/web/dataset/call_kw", {
       model: model,
@@ -46,6 +77,13 @@ class Client {
     });
   };
 
+  /**
+   * Deletes a record with the specified ID from the model.
+   *
+   * @param {string} model The name of the Odoo model to delete the record from.
+   * @param {number} id The ID of the record to delete.
+   * @returns {Promise<Boolean>} Promise that resolves to the result of the delete request.
+   */
   delete = (model, id) => {
     return this.#request("/web/dataset/call_kw", {
       model: model,
@@ -57,6 +95,15 @@ class Client {
     });
   };
 
+  /**
+   * Searches for records in a model that match the specified domain, optionally limiting the number of results returned.
+   *
+   * @param {string} model The name of the Odoo model to search.
+   * @param {Object} params An object containing search parameters.
+   * @param {Array} params.domain An array of domain criteria to search for.
+   * @param {number} [params.limit] An optional limit on the number of results to return.
+   * @returns {Promise} Promise that resolves to record IDs of the search results.
+   */
   search = (model, params) => {
     return this.#request("/web/dataset/call_kw", {
       model: model,
@@ -69,6 +116,18 @@ class Client {
     });
   };
 
+  /**
+   *Search for records that match the specified domain and return the fields as specified in the params object.
+   *
+   * @param {string} model The name of the Odoo model to search.
+   * @param {Object} params An object that contains search parameters and field specifications.
+   * @param {Array} params.domain An array of domain criteria to search for.
+   * @param {number} [params.offset=0] The offset from where the records are to be fetched.
+   * @param {number} [params.limit=0] The maximum number of records to return.
+   * @param {Array} [params.order] Sorting criteria.
+   * @param {Array} [params.fields] Field names to return.
+   * @returns {Promise} Promise that resolves to an array of matching records.
+   */
   search_read = (model, params) => {
     return this.#request("/web/dataset/call_kw", {
       model: model,
@@ -85,6 +144,14 @@ class Client {
     });
   };
 
+  /**
+   * Search for a single record by its ID and return the fields as specified in the params object.
+   *
+   * @param {string} model The name of the Odoo model to search.
+   * @param {number} id The ID of the record to search.
+   * @param {Object} [params] An object that contains search parameters and field specifications.
+   * @returns {Promise<Array>} Promise that resolves to an array of matching records.
+   */
   search_by_id = (model, id, params) => {
     const constructed_params = {
       domain: [["id", "=", id]],
@@ -94,6 +161,13 @@ class Client {
     return this.search_read(model, constructed_params);
   };
 
+  /**
+   * Generic JSON-RPC call to the provided endpoint with the given parameters. Requires a deeper understanding of the Odoo Web API.
+   *
+   * @param {string} endpoint The URL of the JSON-RPC endpoint.
+   * @param {object} params An object containing the parameters to send.
+   * @returns {Promise} Promise that resolves with the result of the JSON-RPC call.
+   */
   rpc_call = (endpoint, params) => {
     return this.#request(endpoint, params);
   };
