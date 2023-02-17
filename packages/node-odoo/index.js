@@ -2,9 +2,11 @@
 
 const axios = require("axios");
 const Client = require("./client");
+const validateKeys = require("./helpers/validateConfig");
 
 class Odoo {
   constructor(config) {
+    this.#validate(config);
     this.config = config || {};
     this.db = config.db;
     this.username = config.username;
@@ -16,6 +18,14 @@ class Odoo {
       ? `${config.protocol}://${config.host}:${config.port}`
       : `${config.protocol}://${config.host}`;
   }
+
+  #validate = (config) => {
+    try {
+      validateKeys(config);
+    } catch (err) {
+      throw err;
+    }
+  };
 
   connect = async () => {
     let body = JSON.stringify({
@@ -51,13 +61,12 @@ class Odoo {
         .split("=")[1];
 
       return new Client({
-        name: this.db,
+        db: this.db,
         baseURL: this.baseURL,
         sessionId: OdooSessionId,
       });
     } catch (err) {
-      // console.error(err);
-      return Promise.reject({ message: err });
+      return Promise.reject({ message: err.message });
     }
   };
 }

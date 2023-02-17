@@ -3,7 +3,7 @@ const { test, beforeEach } = t;
 const Odoo = require("..");
 const axios = require("axios");
 
-const ODOO_DB = "unit_test";
+const ODOO_DB = "localhost";
 const ODOO_USERNAME = "admin";
 const ODOO_PASSWORD = "admin";
 const ODOO_PORT = "8069";
@@ -24,6 +24,7 @@ beforeEach(async (t) => {
   t.context.connection = await new Odoo(ODOO_CONFIG).connect();
 });
 
+// TODO: Add disconnect functionality
 // t.afterEach(t => {
 //   t.context.connection.disconnect()
 // })

@@ -4,7 +4,7 @@ const t = require("tap");
 const { test } = t;
 const Odoo = require("..");
 
-const ODOO_DB = "unit_test";
+const ODOO_DB = "localhost";
 const ODOO_USERNAME = "admin";
 const ODOO_PASSWORD = "admin";
 const ODOO_PORT = "8069";
@@ -51,13 +51,15 @@ test("should establish odoo connection", async (t) => {
   t.end();
 });
 
-// test("should error", async (t) => {
-//   const given = {
-//     protocol: ODOO_PROTOCOL,
-//     host: "incorrect-host",
-//   };
-//   const client = await new Odoo(given).connect();
-//   console.log(client)
-//   t.ok(client);
-//   t.equal(client.message, "connect ECONNREFUSED 127.0.0.1:9999");
-// });
+test("should throw client config error", async (t) => {
+  t.plan(1);
+  const given = {
+    host: "incorrect-host",
+  };
+  t.throws(
+    function () {
+      new Odoo(given);
+    },
+    {message: '"db" parameter is mandatory'}
+  );
+});

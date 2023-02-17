@@ -4,10 +4,10 @@ const axios = require("axios");
 const { v4: uuidv4 } = require("uuid");
 
 class Client {
-  constructor(options) {
+  constructor({ db, ...options}) {
     this.options = options || {};
-    this.objectId = uuidv4();
-    this.name = options.name;
+    this.objectId = new ObjectId();
+    this.db = db
   }
 
   read = (model, params) => {
@@ -133,6 +133,21 @@ class Client {
       return Promise.reject(err);
     }
   };
+}
+
+class ObjectId {
+  constructor() {
+    this.id = uuidv4();
+  }
+
+  getTimestamp() {
+    const timestamp = parseInt(this.id.substr(0, 8), 16);
+    return new Date(timestamp * 1000);
+  }
+
+  valueOf() {
+    return this.id;
+  }
 }
 
 module.exports = Client;
