@@ -1,3 +1,5 @@
+"use strict";
+
 function extractUrlTokens(url) {
   const match = url.match(/(https?):\/\/([^:]+):(\d+)/);
   if (!match) {

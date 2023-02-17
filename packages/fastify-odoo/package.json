@@ -5,10 +5,12 @@
   "main": "index.js",
   "scripts": {
     "coverage": "npm run unit -- --cov --coverage-report=html",
+    "odoo": "docker compose up -d",
     "lint": "standard",
     "lint:fix": "standard --fix",
     "test": "npm run test:unit",
-    "test:unit": "tap"
+    "test:unit": "tap",
+    "test:watch": "tap --watch"
   },
   "repository": {
     "type": "git",
@@ -32,7 +34,8 @@
     "tap": "^16.1.0"
   },
   "dependencies": {
-    "fastify-plugin": "^4.0.0"
+    "fastify-plugin": "^4.0.0",
+    "@node/odoo": "*"
   },
   "publishConfig": {
     "access": "public"

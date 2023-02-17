@@ -1,7 +1,7 @@
 "use strict";
 
 const fp = require("fastify-plugin");
-const OdooClient = require("../node-odoo");
+const Odoo = require("../node-odoo");
 const extractUrlTokens = require("./helpers/extractUrlTokens");
 
 async function fastifyOdoo(fastify, options) {
@@ -11,54 +11,57 @@ async function fastifyOdoo(fastify, options) {
     },
     options
   );
-  const { forceClose, db, username, password, url, ...opts } = options;
+  const { forceClose = false, db, username, password, url, ...opts } = options;
 
-  if (!url) {
-    throw Error("`url` parameter is mandatory if no client is provided");
-  }
+  const requiredProps = ["db", "username", "password", "url"];
+  requiredProps.forEach((prop) => {
+    if (!options[prop]) {
+      throw new Error(`"${prop}" parameter is mandatory`);
+    }
+  });
 
   const { host, port, protocol } = extractUrlTokens(url);
-  const odooConnector = new OdooClient(db, username, password, host, port, protocol);
-  const client = await odooConnector.connect();
+  const client = await new Odoo({
+    db,
+    username,
+    password,
+    host,
+    port,
+    protocol,
+  }).connect();
 
   decorateInstance(fastify, client, {
     forceClose,
-    db: db,
+    // database: db,
+    name: opts?.name,
   });
 }
 
 function decorateInstance(fastify, client, options) {
   const forceClose = options.forceClose;
-  const db = options.db;
   const name = options.name;
 
-  // TODO: Add a unique object ID to each Odoo client instance
-  const odoo = {
-    client,
-    // ObjectId,
-  };
+  // TODO: Add onClose hook to force close connection
 
   if (name) {
     if (!fastify.odoo) {
-      fastify.decorate("odoo", odoo);
+      fastify.decorate("odoo", { [name]: client });
+      return
     }
     if (fastify.odoo[name]) {
       throw Error("Connection name already registered: " + name);
-    }
-
-    fastify.odoo[name] = odoo;
-  } else {
-    if (fastify.odoo) {
-      throw Error("fastify-odoo has already registered");
+    } else {
+      fastify.odoo[name] = client;
+      return
     }
   }
 
-  // if (dbName) {
-  //   odoo.db = client.db(dbName);
-  // }
-
-  if (!fastify.odoo) {
-    fastify.decorate("odoo", odoo);
+  if (fastify.odoo) {
+    throw Error(
+      "Fastify-odoo has already registered. Please use a named instance for multiple connections"
+    );
+  } else {
+    fastify.decorate("odoo", { client });
   }
 }
 
@@ -68,3 +71,5 @@ module.exports = fp(fastifyOdoo, {
 });
 module.exports.default = fastifyOdoo;
 module.exports.fastifyOdoo = fastifyOdoo;
+
+module.exports.odoo = require("../node-odoo");
