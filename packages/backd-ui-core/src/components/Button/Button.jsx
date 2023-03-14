@@ -1,5 +1,5 @@
 import { LoadingButton } from '@mui/lab';
-import { Button as MUIButton, css, styled } from '@mui/material';
+import { Button as MuiButton, css, styled } from '@mui/material';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import * as React from 'react';
@@ -74,7 +74,7 @@ const Base = ({
 }
 `;
 
-const Wrapper = styled(MUIButton, {
+const Wrapper = styled(MuiButton, {
   shouldForwardProp: (prop) => prop !== 'autoWidth',
 })(
   (props) => css`
